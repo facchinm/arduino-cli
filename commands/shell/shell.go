@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime/debug"
 	"strings"
 
@@ -66,6 +67,7 @@ func Run(cmd *cobra.Command) {
 			prompt.OptionPrefix(">"),
 			prompt.OptionMaxSuggestion(10),
 			prompt.OptionAddKeyBind(quit),
+			prompt.OptionOnlyUpdateIfSingleChoice(true),
 		},
 	}
 	cmd.PersistentPreRun(cmd, []string{})
@@ -79,10 +81,11 @@ func handleDynamicSuggestions(annotation string, doc prompt.Document) []prompt.S
 
 	switch annotation {
 	case "getBoardsOrFilename":
-		if doc.GetWordBeforeCursorUntilSeparator(" ") == "-b" {
+		if strings.Contains(doc.CurrentLineBeforeCursor(), "-b") {
 			requestingBoardCompletion = true
 		}
-		if strings.Count(doc.GetWordBeforeCursorUntilSeparator(" "), ":") >= 2 {
+		match := regexp.MustCompile("\\w+:\\w+:\\w+ ").Match([]byte(doc.CurrentLineBeforeCursor()))
+		if match {
 			requestingBoardCompletion = false
 		}
 		if requestingBoardCompletion == true {
