@@ -22,11 +22,18 @@ import (
 
 	"github.com/arduino/arduino-cli/commands"
 	"github.com/arduino/arduino-cli/commands/root"
+	"github.com/arduino/arduino-cli/commands/shell"
 	"github.com/arduino/arduino-cli/common/formatter"
 )
 
 func main() {
+
 	cmd := root.Init()
+	if len(os.Args) == 1 {
+		// start interactive shell
+		shell.Run(cmd)
+	}
+
 	if err := cmd.Execute(); err != nil {
 		formatter.PrintError(err, "Bad exit.")
 		os.Exit(commands.ErrGeneric)

@@ -36,6 +36,7 @@ import (
 	properties "github.com/arduino/go-properties-map"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	cobraprompt "github.com/stromland/cobra-prompt"
 )
 
 // InitCommand prepares the command.
@@ -45,8 +46,11 @@ func InitCommand() *cobra.Command {
 		Short:   "Compiles Arduino sketches.",
 		Long:    "Compiles Arduino sketches.",
 		Example: "  " + commands.AppName + " compile -b arduino:avr:uno /home/user/Arduino/MySketch",
-		Args:    cobra.MaximumNArgs(1),
-		Run:     run,
+		Annotations: map[string]string{
+			cobraprompt.CALLBACK_ANNOTATION: "getBoardsOrFilename",
+		},
+		Args: cobra.MaximumNArgs(1),
+		Run:  run,
 	}
 	command.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Fully Qualified Board Name, e.g.: arduino:avr:uno")
 	command.Flags().BoolVar(&flags.showProperties, "show-properties", false, "Show all build properties used instead of compiling.")

@@ -38,8 +38,7 @@ func initListAllCommand() *cobra.Command {
 	return listAllCommand
 }
 
-// runListAllCommand list all installed boards
-func runListAllCommand(cmd *cobra.Command, args []string) {
+func CreateAllKnownBoardsList() *output.BoardList {
 	pm := commands.InitPackageManager()
 
 	list := &output.BoardList{}
@@ -58,5 +57,11 @@ func runListAllCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 	sort.Sort(list)
+	return list
+}
+
+// runListAllCommand list all installed boards
+func runListAllCommand(cmd *cobra.Command, args []string) {
+	list := CreateAllKnownBoardsList()
 	formatter.Print(list)
 }
