@@ -50,8 +50,9 @@ func CreateAllKnownBoardsList() *output.BoardList {
 			}
 			for _, board := range platformRelease.Boards {
 				list.Boards = append(list.Boards, &output.BoardListItem{
-					Name: board.Name(),
-					Fqbn: board.FQBN(),
+					Name:       board.Name(),
+					Fqbn:       board.FQBN(),
+					Properties: board.Properties,
 				})
 			}
 		}

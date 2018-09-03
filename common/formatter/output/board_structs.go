@@ -20,6 +20,7 @@ package output
 import (
 	"fmt"
 
+	properties "github.com/arduino/go-properties-map"
 	"github.com/gosuri/uitable"
 )
 
@@ -61,8 +62,9 @@ func (bl *AttachedBoardList) String() string {
 
 // BoardListItem is a supported board
 type BoardListItem struct {
-	Name string `json:"name,required"`
-	Fqbn string `json:"fqbn,required"`
+	Name       string         `json:"name,required"`
+	Fqbn       string         `json:"fqbn,required"`
+	Properties properties.Map `json:"properties, "-"`
 }
 
 // BoardList is a list of supported boards
