@@ -65,7 +65,7 @@ func Run(cmd *cobra.Command) {
 		GoPromptOptions: []prompt.Option{
 			prompt.OptionTitle(commands.AppName),
 			prompt.OptionPrefix(">"),
-			prompt.OptionMaxSuggestion(10),
+			prompt.OptionMaxSuggestion(20),
 			prompt.OptionAddKeyBind(quit),
 			prompt.OptionOnlyUpdateIfSingleChoice(true),
 		},
@@ -84,7 +84,7 @@ func handleDynamicSuggestions(annotation string, doc prompt.Document) []prompt.S
 		if strings.Contains(doc.CurrentLineBeforeCursor(), "-b") {
 			requestingBoardCompletion = true
 		}
-		match := regexp.MustCompile("\\w+:\\w+:\\w+ ").Match([]byte(doc.CurrentLineBeforeCursor()))
+		match := regexp.MustCompile("\\w+:\\w+:\\w+(:\\w+=\\w+)*? ").Match([]byte(doc.CurrentLineBeforeCursor()))
 		if match {
 			requestingBoardCompletion = false
 		}
@@ -111,7 +111,19 @@ func GetBoards() []prompt.Suggest {
 	list := board.CreateAllKnownBoardsList()
 
 	for _, el := range list.Boards {
-		suggestions = append(suggestions, prompt.Suggest{el.Fqbn, el.Name, true})
+		extra := ""
+		// Search if it has additional fqbn Properties
+		if len(el.Properties) > 0 {
+			for k, _ := range el.Properties {
+				split := strings.Split(k, ".")
+				if split[0] == "menu" {
+					extra = ":" + split[1] + "=" + split[2]
+					suggestions = AppendIfMissing(suggestions, prompt.Suggest{el.Fqbn + extra, el.Name, true, true})
+				}
+			}
+		} else {
+			suggestions = append(suggestions, prompt.Suggest{el.Fqbn, el.Name, true, false})
+		}
 	}
 	return suggestions
 }
@@ -133,11 +145,20 @@ func GetFilename(startPath string) []prompt.Suggest {
 		name = filepath.Clean(name)
 		if f.IsDir() {
 			name = name
-			suggestions = append(suggestions, prompt.Suggest{name + string(os.PathSeparator), "", true})
+			suggestions = append(suggestions, prompt.Suggest{name + string(os.PathSeparator), "", true, false})
 		}
 		if strings.HasSuffix(f.Name(), ".ino") {
-			suggestions = append(suggestions, prompt.Suggest{name, "", true})
+			suggestions = append(suggestions, prompt.Suggest{name, "", true, false})
 		}
 	}
 	return suggestions
+}
+
+func AppendIfMissing(slice []prompt.Suggest, i prompt.Suggest) []prompt.Suggest {
+	for _, ele := range slice {
+		if ele.Text == i.Text {
+			return slice
+		}
+	}
+	return append(slice, i)
 }
