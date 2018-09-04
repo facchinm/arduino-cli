@@ -149,12 +149,9 @@ func GetFilename(startPath string) []prompt.Suggest {
 
 	for _, f := range files {
 		name := f.Name()
-		if f.IsDir() {
-			name = startPath + string(os.PathSeparator) + name
-		}
+		name = startPath + string(os.PathSeparator) + name
 		name = filepath.Clean(name)
 		if f.IsDir() {
-			name = name
 			suggestions = append(suggestions, prompt.Suggest{name + string(os.PathSeparator), "", true, false})
 		}
 		if strings.HasSuffix(f.Name(), ".ino") {
