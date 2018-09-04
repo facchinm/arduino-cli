@@ -65,7 +65,7 @@ func Run(cmd *cobra.Command) {
 		GoPromptOptions: []prompt.Option{
 			prompt.OptionTitle(commands.AppName),
 			prompt.OptionPrefix(">"),
-			prompt.OptionMaxSuggestion(20),
+			prompt.OptionMaxSuggestion(10),
 			prompt.OptionAddKeyBind(quit),
 			prompt.OptionOnlyUpdateIfSingleChoice(true),
 		},
@@ -89,7 +89,7 @@ func handleDynamicSuggestions(annotation string, doc prompt.Document) []prompt.S
 			requestingBoardCompletion = false
 		}
 		if requestingBoardCompletion == true {
-			return GetBoards()
+			return GetBoards(strings.Count(doc.CurrentLineBeforeCursor(), ":"))
 		} else {
 			path := doc.GetWordBeforeCursor()
 			lastPathSeparator := strings.LastIndex(path, string(os.PathSeparator))
@@ -106,14 +106,14 @@ func handleDynamicSuggestions(annotation string, doc prompt.Document) []prompt.S
 	}
 }
 
-func GetBoards() []prompt.Suggest {
+func GetBoards(howSpecified int) []prompt.Suggest {
 	suggestions := []prompt.Suggest{}
 	list := board.CreateAllKnownBoardsList()
 
 	for _, el := range list.Boards {
 		extra := ""
 		// Search if it has additional fqbn Properties
-		if len(el.Properties) > 0 {
+		if len(el.Properties) > 0 && howSpecified > 2 {
 			for k, _ := range el.Properties {
 				split := strings.Split(k, ".")
 				if split[0] == "menu" {
@@ -122,7 +122,17 @@ func GetBoards() []prompt.Suggest {
 				}
 			}
 		} else {
-			suggestions = append(suggestions, prompt.Suggest{el.Fqbn, el.Name, true, false})
+
+			split := strings.Split(el.Fqbn, ":")
+			if howSpecified == 0 {
+				suggestions = AppendIfMissing(suggestions, prompt.Suggest{split[0], "", true, false})
+			}
+			if howSpecified == 1 {
+				suggestions = AppendIfMissing(suggestions, prompt.Suggest{split[0] + ":" + split[1], "", true, false})
+			}
+			if howSpecified == 2 {
+				suggestions = AppendIfMissing(suggestions, prompt.Suggest{el.Fqbn, el.Name, true, false})
+			}
 		}
 	}
 	return suggestions
