@@ -46,13 +46,15 @@ func initAttachCommand() *cobra.Command {
 		Args: cobra.RangeArgs(1, 2),
 		Run:  runAttachCommand,
 	}
-	attachCommand.Flags().StringVar(&attachFlags.boardFlavour, "flavour", "default", "The Name of the CPU flavour, it is required for some boards (e.g. Arduino Nano).")
-	attachCommand.Flags().StringVar(&attachFlags.searchTimeout, "timeout", "5s", "The timeout of the search of connected devices, try to high it if your board is not found (e.g. to 10s).")
+	attachCommand.Flags().StringVar(&attachFlags.boardFlavour, "flavour", "default",
+		"The Name of the CPU flavour, it is required for some boards (e.g. Arduino Nano).")
+	attachCommand.Flags().StringVar(&attachFlags.searchTimeout, "timeout", "5s",
+		"The timeout of the search of connected devices, try to high it if your board is not found (e.g. to 10s).")
 	return attachCommand
 }
 
 var attachFlags struct {
-	boardFlavour  string // The flavour of the chipset of the cpu of the connected board, if not specified it is set to "default".
+	boardFlavour  string // The flavor of the chipset of the cpu of the connected board, if not specified it is set to "default".
 	searchTimeout string // Expressed in a parsable duration, is the timeout for the list and attach commands.
 }
 

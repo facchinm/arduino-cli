@@ -37,14 +37,14 @@ type Tool struct {
 // ToolRelease represents a single release of a tool
 type ToolRelease struct {
 	Version    *semver.RelaxedVersion `json:"version,required"` // The version number of this Release.
-	Flavours   []*Flavour             `json:"systems"`          // Maps OS to Flavour
+	Flavors    []*Flavor              `json:"systems"`          // Maps OS to Flavor
 	Tool       *Tool                  `json:"-"`
 	InstallDir *paths.Path            `json:"-"`
 }
 
-// Flavour represents a flavour of a Tool version.
-type Flavour struct {
-	OS       string `json:"os,required"` // The OS Supported by this flavour.
+// Flavor represents a flavor of a Tool version.
+type Flavor struct {
+	OS       string `json:"os,required"` // The OS Supported by this flavor.
 	Resource *resources.DownloadResource
 }
 
@@ -62,9 +62,9 @@ func (tool *Tool) GetOrCreateRelease(version *semver.RelaxedVersion) *ToolReleas
 	return release
 }
 
-// GetRelease returns the specified release corresponding the provided version,
+// FindReleaseWithRelaxedVersion returns the specified release corresponding the provided version,
 // or nil if not found.
-func (tool *Tool) GetRelease(version *semver.RelaxedVersion) *ToolRelease {
+func (tool *Tool) FindReleaseWithRelaxedVersion(version *semver.RelaxedVersion) *ToolRelease {
 	return tool.Releases[version.String()]
 }
 
@@ -81,11 +81,12 @@ func (tool *Tool) GetAllReleasesVersions() []*semver.RelaxedVersion {
 
 // LatestRelease obtains latest version of a core package.
 func (tool *Tool) LatestRelease() *ToolRelease {
-	if latest := tool.latestReleaseVersion(); latest == nil {
+	latest := tool.latestReleaseVersion()
+	if latest == nil {
 		return nil
-	} else {
-		return tool.GetRelease(latest)
 	}
+
+	return tool.FindReleaseWithRelaxedVersion(latest)
 }
 
 // latestReleaseVersion obtains latest version number.
@@ -149,11 +150,11 @@ var (
 	regexpArmBSD   = regexp.MustCompile("arm.*-freebsd[0-9]*")
 )
 
-func (f *Flavour) isCompatibleWithCurrentMachine() bool {
+func (f *Flavor) isCompatibleWithCurrentMachine() bool {
 	return f.isCompatibleWith(runtime.GOOS, runtime.GOARCH)
 }
 
-func (f *Flavour) isCompatibleWith(osName, osArch string) bool {
+func (f *Flavor) isCompatibleWith(osName, osArch string) bool {
 	if f.OS == "all" {
 		return true
 	}
@@ -163,17 +164,17 @@ func (f *Flavour) isCompatibleWith(osName, osArch string) bool {
 		return regexpArmLinux.MatchString(f.OS)
 	case "linux,amd64":
 		return regexpAmd64.MatchString(f.OS)
-	case "linux,i386":
+	case "linux,386":
 		return regexpi386.MatchString(f.OS)
-	case "windows,i386", "windows,amd64":
+	case "windows,386", "windows,amd64":
 		return regexpWindows.MatchString(f.OS)
 	case "darwin,amd64":
 		return regexpmac32Bit.MatchString(f.OS) || regexpMac64Bit.MatchString(f.OS)
-	case "darwin,i386":
+	case "darwin,386":
 		return regexpmac32Bit.MatchString(f.OS)
 	case "freebsd,arm":
 		return regexpArmBSD.MatchString(f.OS)
-	case "freebsd,i386", "freebsd,amd64":
+	case "freebsd,386", "freebsd,amd64":
 		genericFreeBSDexp := regexp.MustCompile(osArch + "%s-freebsd[0-9]*")
 		return genericFreeBSDexp.MatchString(f.OS)
 	}
@@ -182,7 +183,7 @@ func (f *Flavour) isCompatibleWith(osName, osArch string) bool {
 
 // GetCompatibleFlavour returns the downloadable resource compatible with the running O.S.
 func (tr *ToolRelease) GetCompatibleFlavour() *resources.DownloadResource {
-	for _, flavour := range tr.Flavours {
+	for _, flavour := range tr.Flavors {
 		if flavour.isCompatibleWithCurrentMachine() {
 			return flavour.Resource
 		}

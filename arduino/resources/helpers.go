@@ -41,12 +41,7 @@ func (r *DownloadResource) IsCached(downloadDir *paths.Path) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("getting archive path: %s", err)
 	}
-
-	if exist, err := archivePath.Exist(); err != nil {
-		return false, fmt.Errorf("checking archive existence: %s", err)
-	} else {
-		return exist, nil
-	}
+	return archivePath.Exist(), nil
 }
 
 // Download a DownloadResource.

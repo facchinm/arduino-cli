@@ -35,7 +35,7 @@ import (
 
 // Redirecting stdOut so we can analyze output line by
 // line and check with what we want.
-var stdOut *os.File = os.Stdout
+var stdOut = os.Stdout
 
 type stdOutRedirect struct {
 	tempFile *os.File
@@ -67,42 +67,47 @@ func (grabber *stdOutRedirect) Close() {
 
 // executeWithArgs executes the Cobra Command with the given arguments
 // and intercepts any errors (even `os.Exit()` ones), returning the exit code
-func executeWithArgs(t *testing.T, args ...string) (exitCode int, output []byte) {
+func executeWithArgs(t *testing.T, args ...string) (int, []byte) {
+	var output []byte
+	var exitCode int
 	fmt.Printf("RUNNING: %s\n", args)
 
-	redirect := &stdOutRedirect{}
-	redirect.Open(t)
-	defer func() {
-		output = redirect.GetOutput()
-		redirect.Close()
-		fmt.Print(string(output))
-		fmt.Println()
-	}()
+	// This closure is here because we won't that the defer are executed after the end of the "executeWithArgs" method
+	func() {
+		redirect := &stdOutRedirect{}
+		redirect.Open(t)
+		defer func() {
+			output = redirect.GetOutput()
+			redirect.Close()
+			fmt.Print(string(output))
+			fmt.Println()
+		}()
 
-	// Mock the os.Exit function, so that we can use the
-	// error result for the test and prevent the test from exiting
-	fakeExitFired := false
-	fakeExit := func(code int) {
-		exitCode = code
-		fakeExitFired = true
+		// Mock the os.Exit function, so that we can use the
+		// error result for the test and prevent the test from exiting
+		fakeExitFired := false
+		fakeExit := func(code int) {
+			exitCode = code
+			fakeExitFired = true
 
-		// use panic to exit and jump to deferred recover
-		panic(fmt.Errorf("os.Exit(%d)", code))
-	}
-	patch := monkey.Patch(os.Exit, fakeExit)
-	defer patch.Unpatch()
-	defer func() {
-		if fakeExitFired {
-			recover()
+			// use panic to exit and jump to deferred recover
+			panic(fmt.Errorf("os.Exit(%d)", code))
 		}
+		patch := monkey.Patch(os.Exit, fakeExit)
+		defer patch.Unpatch()
+		defer func() {
+			if fakeExitFired {
+				recover()
+			}
+		}()
+
+		// Execute the CLI command, in this process
+		cmd := root.Init()
+		cmd.SetArgs(args)
+		cmd.Execute()
 	}()
 
-	// Execute the CLI command, in this process
-	cmd := root.Init()
-	cmd.SetArgs(args)
-	cmd.Execute()
-
-	return
+	return exitCode, output
 }
 
 var currDataDir *paths.Path
@@ -169,11 +174,47 @@ func TestLibSearch(t *testing.T) {
 	require.Equal(t, "", string(output))
 }
 
+func TestUserLibs(t *testing.T) {
+	defer makeTempDataDir(t)()
+	defer makeTempSketchbookDir(t)()
+	libDir := currSketchbookDir.Join("libraries")
+	err := libDir.MkdirAll()
+	require.NoError(t, err, "creating 'sketchbook/libraries' dir")
+
+	installLib := func(lib string) {
+		libPath := paths.New("testdata/" + lib)
+		fmt.Printf("COPYING: %s in %s\n", libPath, libDir)
+		err = libPath.CopyDirTo(libDir.Join(lib))
+		require.NoError(t, err, "copying "+lib+" in sketchbook")
+	}
+
+	// List libraries (valid libs)
+	installLib("MyLib")
+	exitCode, d := executeWithArgs(t, "lib", "list")
+	require.Zero(t, exitCode, "exit code")
+	require.Contains(t, string(d), "MyLib")
+	require.Contains(t, string(d), "1.0.5")
+
+	// List libraries (pre-1.5 format)
+	installLib("MyLibPre15")
+	exitCode, d = executeWithArgs(t, "lib", "list")
+	require.Zero(t, exitCode, "exit code")
+	require.Contains(t, string(d), "MyLibPre15")
+
+	// List libraries (invalid version lib)
+	installLib("MyLibWithWrongVersion")
+	exitCode, d = executeWithArgs(t, "lib", "list")
+	require.Zero(t, exitCode, "exit code")
+	require.Contains(t, string(d), "MyLibWithWrongVersion")
+}
+
 func TestLibDownloadAndInstall(t *testing.T) {
 	defer makeTempDataDir(t)()
 	defer makeTempSketchbookDir(t)()
+	var d []byte
+	var exitCode int
 
-	exitCode, d := executeWithArgs(t, "core", "update-index")
+	exitCode, _ = executeWithArgs(t, "core", "update-index")
 	require.Zero(t, exitCode, "exit code")
 
 	// Download inexistent
@@ -269,7 +310,6 @@ func TestLibDownloadAndInstall(t *testing.T) {
 	exitCode, d = executeWithArgs(t, "lib", "list")
 	require.Zero(t, exitCode, "exit code")
 	require.NotContains(t, string(d), "Audio")
-
 }
 
 func updateCoreIndex(t *testing.T) {

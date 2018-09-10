@@ -23,7 +23,7 @@ import (
 	"github.com/arduino/go-paths-helper"
 
 	"github.com/arduino/arduino-cli/arduino/resources"
-	properties "github.com/arduino/go-properties-map"
+	"github.com/arduino/go-properties-map"
 	"go.bug.st/relaxed-semver"
 )
 
@@ -111,9 +111,10 @@ func (platform *Platform) GetOrCreateRelease(version *semver.Version) (*Platform
 	return release, nil
 }
 
-// GetRelease returns the specified release corresponding the provided version,
+// FindReleaseWithVersion returns the specified release corresponding the provided version,
 // or nil if not found.
-func (platform *Platform) GetRelease(version *semver.Version) *PlatformRelease {
+func (platform *Platform) FindReleaseWithVersion(version *semver.Version) *PlatformRelease {
+	// use as an fmt.Stringer
 	return platform.Releases[version.String()]
 }
 
@@ -124,7 +125,7 @@ func (platform *Platform) GetLatestRelease() *PlatformRelease {
 	if latestVersion == nil {
 		return nil
 	}
-	return platform.GetRelease(latestVersion)
+	return platform.FindReleaseWithVersion(latestVersion)
 }
 
 // GetAllReleasesVersions returns all the version numbers in this Platform Package.
@@ -176,7 +177,7 @@ func (release *PlatformRelease) GetOrCreateBoard(boardID string) *Board {
 		return board
 	}
 	board := &Board{
-		BoardId:         boardID,
+		BoardID:         boardID,
 		Properties:      properties.Map{},
 		PlatformRelease: release,
 	}
@@ -208,7 +209,7 @@ func (release *PlatformRelease) RuntimeProperties() properties.Map {
 // present
 func (release *PlatformRelease) GetLibrariesDir() *paths.Path {
 	libDir := release.InstallDir.Join("libraries")
-	if isDir, _ := libDir.IsDir(); isDir {
+	if libDir.IsDir() {
 		return libDir
 	}
 	return nil

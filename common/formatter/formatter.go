@@ -42,8 +42,6 @@ var defaultFormatter Formatter
 
 var logger *logrus.Logger
 
-var debug bool
-
 func init() {
 	formatters = make(map[string]Formatter, 2)
 	AddCustomFormatter("text", &TextFormatter{})
@@ -54,7 +52,7 @@ func init() {
 // SetFormatter sets the defaults format to the one specified, if valid. Otherwise it returns an error.
 func SetFormatter(formatName string) error {
 	if !IsSupported(formatName) {
-		return fmt.Errorf("Formatter for %s format not implemented", formatName)
+		return fmt.Errorf("formatter for %s format not implemented", formatName)
 	}
 	defaultFormatter = formatters[formatName]
 	return nil
@@ -91,7 +89,7 @@ func AddCustomFormatter(formatName string, form Formatter) Formatter {
 // Format formats a message formatted using a Formatter specified by SetFormatter(...) function.
 func Format(msg interface{}) (string, error) {
 	if defaultFormatter == nil {
-		return "", errors.New("No formatter set")
+		return "", errors.New("no formatter set")
 	}
 	return defaultFormatter.Format(msg)
 }

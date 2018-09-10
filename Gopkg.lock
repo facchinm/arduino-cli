@@ -3,7 +3,7 @@
 
 [[projects]]
   branch = "cli-inception"
-  digest = "1:ddde34fa8cf0afb0df17b2061894c2dae9418d4a259c28939f5c7dc75e127568"
+  digest = "1:3238cb26ae6f3f359a578afdf2c830d8110bea3a1fc10e620724db99e672d174"
   name = "github.com/arduino/arduino-builder"
   packages = [
     ".",
@@ -17,7 +17,7 @@
     "utils",
   ]
   pruneopts = "UT"
-  revision = "e8663728752c05c46381b799e0bc49ba41354a85"
+  revision = "f9276b5710cc5f2300d5e0bb352ed0771864b876"
   source = "github.com/arduino/arduino-builder"
 
 [[projects]]
@@ -30,11 +30,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:648adbe3adf58d5a1bcaa5196f4aa07935aaccb9303dc844eb878c7d9500ee5b"
+  digest = "1:5c252a193aaa1c0306a7465d11022653dab30d36c3ab5e1e47bd3d608659f061"
   name = "github.com/arduino/go-paths-helper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9629556a3e404ee110aa0e5d8ce02191033f7d78"
+  revision = "44d19052dd968f9ee7c3cc26043b81752794a6dd"
 
 [[projects]]
   branch = "master"

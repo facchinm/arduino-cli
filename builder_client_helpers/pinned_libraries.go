@@ -15,7 +15,7 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-package builderClient
+package builderclient
 
 import (
 	"context"
@@ -40,7 +40,8 @@ func (c *Client) AddPinnedLibraries(ctx context.Context, path string) (*http.Res
 	return c.Client.Do(ctx, req)
 }
 
-// NewAddPinnedLibrariesRequest create the request corresponding to the add action endpoint of the pinnedLibraries resource.
+// NewAddPinnedLibrariesRequest create the request
+// corresponding to the add action endpoint of the pinnedLibraries resource.
 func (c *Client) NewAddPinnedLibrariesRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {

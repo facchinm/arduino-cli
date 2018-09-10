@@ -28,15 +28,15 @@ func TestFlavorCompatibility(t *testing.T) {
 		Os   string
 		Arch string
 	}
-	windowsi386 := &os{"windows", "i386"}
+	windowsi386 := &os{"windows", "386"}
 	windowsx8664 := &os{"windows", "amd64"}
-	linuxi386 := &os{"linux", "i386"}
+	linuxi386 := &os{"linux", "386"}
 	linuxamd64 := &os{"linux", "amd64"}
 	linuxarm := &os{"linux", "arm"}
 	linuxarmbe := &os{"linux", "armbe"}
-	darwini386 := &os{"darwin", "i386"}
+	darwini386 := &os{"darwin", "386"}
 	darwinamd646 := &os{"darwin", "amd64"}
-	freebsdi386 := &os{"freebsd", "i386"}
+	freebsdi386 := &os{"freebsd", "386"}
 	freebsdamd64 := &os{"freebsd", "amd64"}
 	oses := []*os{
 		windowsi386,
@@ -52,13 +52,13 @@ func TestFlavorCompatibility(t *testing.T) {
 	}
 
 	type test struct {
-		Flavour   *Flavour
+		Flavour   *Flavor
 		Positives []*os
 	}
 	tests := []*test{
-		&test{&Flavour{OS: "i686-mingw32"}, []*os{windowsi386, windowsx8664}},
-		&test{&Flavour{OS: "i386-apple-darwin11"}, []*os{darwini386, darwinamd646}},
-		&test{&Flavour{OS: "x86_64-apple-darwin"}, []*os{darwinamd646}},
+		{&Flavor{OS: "i686-mingw32"}, []*os{windowsi386, windowsx8664}},
+		{&Flavor{OS: "i386-apple-darwin11"}, []*os{darwini386, darwinamd646}},
+		{&Flavor{OS: "x86_64-apple-darwin"}, []*os{darwinamd646}},
 
 		// Raspberry PI, BBB or other ARM based host
 		// PI: "arm-linux-gnueabihf"
@@ -66,14 +66,14 @@ func TestFlavorCompatibility(t *testing.T) {
 		// Ubuntu Mate on PI2: "arm-linux-gnueabihf"
 		// Debian 7.9 on BBB: "arm-linux-gnueabihf"
 		// Raspbian on PI Zero: "arm-linux-gnueabihf"
-		&test{&Flavour{OS: "arm-linux-gnueabihf"}, []*os{linuxarm, linuxarmbe}},
+		{&Flavor{OS: "arm-linux-gnueabihf"}, []*os{linuxarm, linuxarmbe}},
 		// Arch-linux on PI2: "armv7l-unknown-linux-gnueabihf"
-		&test{&Flavour{OS: "armv7l-unknown-linux-gnueabihf"}, []*os{linuxarm, linuxarmbe}},
+		{&Flavor{OS: "armv7l-unknown-linux-gnueabihf"}, []*os{linuxarm, linuxarmbe}},
 
-		&test{&Flavour{OS: "i686-linux-gnu"}, []*os{linuxi386}},
-		&test{&Flavour{OS: "i686-pc-linux-gnu"}, []*os{linuxi386}},
-		&test{&Flavour{OS: "x86_64-linux-gnu"}, []*os{linuxamd64}},
-		&test{&Flavour{OS: "x86_64-pc-linux-gnu"}, []*os{linuxamd64}},
+		{&Flavor{OS: "i686-linux-gnu"}, []*os{linuxi386}},
+		{&Flavor{OS: "i686-pc-linux-gnu"}, []*os{linuxi386}},
+		{&Flavor{OS: "x86_64-linux-gnu"}, []*os{linuxamd64}},
+		{&Flavor{OS: "x86_64-pc-linux-gnu"}, []*os{linuxamd64}},
 	}
 
 	check := func(test *test, os *os) {

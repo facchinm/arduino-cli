@@ -15,7 +15,7 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-package builderClient
+package builderclient
 
 import (
 	"context"
@@ -29,9 +29,13 @@ func ListLibrariesPath() string {
 	return fmt.Sprintf("/builder/v1/libraries")
 }
 
-// ListLibraries provides a list of all the latest versions of the libraries supported by Arduino Create. Doesn't require any authentication.
-func (c *Client) ListLibraries(ctx context.Context, path string, maintainer *string, type_ *string, withoutType *string) (*http.Response, error) {
-	req, err := c.NewListLibrariesRequest(ctx, path, maintainer, type_, withoutType)
+// ListLibraries provides a list of all the latest versions of the libraries supported by Arduino Create.
+// Doesn't require any authentication.
+func (c *Client) ListLibraries(
+	ctx context.Context,
+	path string, maintainer *string, type1 *string, withoutType *string) (*http.Response, error) {
+
+	req, err := c.NewListLibrariesRequest(ctx, path, maintainer, type1, withoutType)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +43,7 @@ func (c *Client) ListLibraries(ctx context.Context, path string, maintainer *str
 }
 
 // NewListLibrariesRequest create the request corresponding to the list action endpoint of the libraries resource.
-func (c *Client) NewListLibrariesRequest(ctx context.Context, path string, maintainer *string, type_ *string, withoutType *string) (*http.Request, error) {
+func (c *Client) NewListLibrariesRequest(ctx context.Context, path string, maintainer *string, libType *string, withoutType *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
@@ -49,8 +53,8 @@ func (c *Client) NewListLibrariesRequest(ctx context.Context, path string, maint
 	if maintainer != nil {
 		values.Set("maintainer", *maintainer)
 	}
-	if type_ != nil {
-		values.Set("type", *type_)
+	if libType != nil {
+		values.Set("type", *libType)
 	}
 	if withoutType != nil {
 		values.Set("without_type", *withoutType)
@@ -68,7 +72,8 @@ func ShowLibrariesPath(id string) string {
 	return fmt.Sprintf("/builder/v1/libraries/%s", id)
 }
 
-// ShowLibraries provides the library identified by the :id and :pid param. Doesn't require authentication. Also contains a list of other versions of the library
+// ShowLibraries provides the library identified by the :id and :pid param. Doesn't require authentication.
+// Also contains a list of other versions of the library
 func (c *Client) ShowLibraries(ctx context.Context, path string) (*http.Response, error) {
 	req, err := c.NewShowLibrariesRequest(ctx, path)
 	if err != nil {
