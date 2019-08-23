@@ -23,6 +23,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/board"
 	"github.com/arduino/arduino-cli/cli/compile"
+	"github.com/arduino/arduino-cli/cli/completion"
 	"github.com/arduino/arduino-cli/cli/config"
 	"github.com/arduino/arduino-cli/cli/core"
 	"github.com/arduino/arduino-cli/cli/daemon"
@@ -43,11 +44,12 @@ import (
 var (
 	// ArduinoCli is the root command
 	ArduinoCli = &cobra.Command{
-		Use:              "arduino-cli",
-		Short:            "Arduino CLI.",
-		Long:             "Arduino Command Line Interface (arduino-cli).",
-		Example:          "  " + os.Args[0] + " <command> [flags...]",
-		PersistentPreRun: preRun,
+		Use:                    "arduino-cli",
+		Short:                  "Arduino CLI.",
+		Long:                   "Arduino Command Line Interface (arduino-cli).",
+		Example:                "  " + os.Args[0] + " <command> [flags...]",
+		PersistentPreRun:       preRun,
+		BashCompletionFunction: completion.Fqbn_bash_completion_func,
 	}
 
 	// ErrLogrus represents the logrus instance, which has the role to
@@ -74,6 +76,7 @@ func createCliCommandTree(cmd *cobra.Command) {
 	cmd.AddCommand(sketch.NewCommand())
 	cmd.AddCommand(upload.NewCommand())
 	cmd.AddCommand(version.NewCommand())
+	cmd.AddCommand(completion.InitCommand())
 
 	cmd.PersistentFlags().BoolVar(&globals.Debug, "debug", false, "Enables debug output (super verbose, used to debug the CLI).")
 	cmd.PersistentFlags().StringVar(&outputFormat, "format", "text", "The output format, can be [text|json].")

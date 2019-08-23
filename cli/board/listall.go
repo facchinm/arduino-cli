@@ -75,3 +75,32 @@ func outputBoardListAll(list *rpc.BoardListAllResp) {
 	}
 	fmt.Print(table.Render())
 }
+
+func initListAllCommandOnlyFqbn() *cobra.Command {
+	listAllCommand := &cobra.Command{
+		Use:    "listallfqbn",
+		Run:    runListAllCommandOnlyFqbn,
+		Hidden: true,
+	}
+	return listAllCommand
+}
+
+// runListAllCommand list all installed boards
+func runListAllCommandOnlyFqbn(cmd *cobra.Command, args []string) {
+	instance := instance.CreateInstance()
+
+	list, err := board.ListAll(context.Background(), &rpc.BoardListAllReq{
+		Instance:   instance,
+		SearchArgs: args,
+	})
+	if err != nil {
+		formatter.PrintError(err, "Error listing boards")
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	if output.JSONOrElse(list) {
+		for _, item := range list.GetBoards() {
+			fmt.Println(item.GetFQBN())
+		}
+	}
+}
