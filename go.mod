@@ -24,6 +24,7 @@ require (
 	github.com/juju/errors v0.0.0-20181118221551-089d3ea4e4d5 // indirect
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect
 	github.com/juju/testing v0.0.0-20190429233213-dfc56b8c09fc // indirect
+	github.com/marcinbor85/gohex v0.0.0-20180128172054-7a43cd876e46
 	github.com/mattn/go-colorable v0.1.2
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/miekg/dns v1.0.5 // indirect

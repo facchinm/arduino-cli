@@ -79,8 +79,8 @@ func TestMergeSketchWithBootloader(t *testing.T) {
 	NoError(t, err)
 	mergedSketchHex := string(bytes)
 
-	require.True(t, strings.HasPrefix(mergedSketchHex, "row 1\n:107E0000112484B714BE81FFF0D085E080938100F7\n"))
-	require.True(t, strings.HasSuffix(mergedSketchHex, ":0400000300007E007B\n:00000001FF\n"))
+	require.True(t, strings.HasPrefix(mergedSketchHex, ":100000000C9434000C9446000C9446000C9446006A\n"))
+	require.True(t, strings.HasSuffix(mergedSketchHex, ":00000001FF\n"))
 }
 
 func TestMergeSketchWithBootloaderSketchInBuildPath(t *testing.T) {
@@ -121,8 +121,8 @@ func TestMergeSketchWithBootloaderSketchInBuildPath(t *testing.T) {
 	NoError(t, err)
 	mergedSketchHex := string(bytes)
 
-	require.True(t, strings.HasPrefix(mergedSketchHex, "row 1\n:107E0000112484B714BE81FFF0D085E080938100F7\n"))
-	require.True(t, strings.HasSuffix(mergedSketchHex, ":0400000300007E007B\n:00000001FF\n"))
+	require.True(t, strings.HasPrefix(mergedSketchHex, ":100000000C9434000C9446000C9446000C9446006A\n"))
+	require.True(t, strings.HasSuffix(mergedSketchHex, ":00000001FF\n"))
 }
 
 func TestMergeSketchWithBootloaderWhenNoBootloaderAvailable(t *testing.T) {
@@ -201,6 +201,6 @@ func TestMergeSketchWithBootloaderPathIsParameterized(t *testing.T) {
 	NoError(t, err)
 	mergedSketchHex := string(bytes)
 
-	require.True(t, strings.HasPrefix(mergedSketchHex, "row 1\n:020000023000CC"))
-	require.True(t, strings.HasSuffix(mergedSketchHex, ":040000033000E000E9\n:00000001FF\n"))
+	require.True(t, strings.HasPrefix(mergedSketchHex, ":100000000C9434000C9446000C9446000C9446006A\n"))
+	require.True(t, strings.HasSuffix(mergedSketchHex, ":00000001FF\n"))
 }
