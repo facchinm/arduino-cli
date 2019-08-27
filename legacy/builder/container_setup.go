@@ -52,10 +52,11 @@ func (s *ContainerSetupHardwareToolsLibsSketchAndProps) Run(ctx *types.Context) 
 		&LibrariesLoader{},
 	}
 
-	ctx.Progress.Steps = ctx.Progress.Steps / float64(len(commands))
+	stepSize := ctx.Progress.Steps / float64(len(commands))
+	ctx.Progress.Steps = stepSize
 
 	for _, command := range commands {
-		builder_utils.PrintProgressIfProgressEnabledAndMachineLogger(ctx)
+		builder_utils.PrintProgressIfProgressEnabledAndMachineLogger(ctx, ctx.Progress.PrintEnabled, stepSize)
 		PrintRingNameIfDebug(ctx, command)
 		err := command.Run(ctx)
 		if err != nil {
@@ -84,10 +85,11 @@ func (s *ContainerSetupHardwareToolsLibsSketchAndProps) Run(ctx *types.Context) 
 		&AddMissingBuildPropertiesFromParentPlatformTxtFiles{},
 	}
 
-	ctx.Progress.Steps = ctx.Progress.Steps / float64(len(commands))
+	stepSize = ctx.Progress.Steps / float64(len(commands))
+	ctx.Progress.Steps = stepSize
 
 	for _, command := range commands {
-		builder_utils.PrintProgressIfProgressEnabledAndMachineLogger(ctx)
+		builder_utils.PrintProgressIfProgressEnabledAndMachineLogger(ctx, ctx.Progress.PrintEnabled, stepSize)
 		PrintRingNameIfDebug(ctx, command)
 		err := command.Run(ctx)
 		if err != nil {

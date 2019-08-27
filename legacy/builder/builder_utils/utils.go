@@ -46,16 +46,20 @@ import (
 	"github.com/arduino/go-properties-orderedmap"
 )
 
-func PrintProgressIfProgressEnabledAndMachineLogger(ctx *types.Context) {
+func PrintProgressIfProgressEnabledAndMachineLogger(ctx *types.Context, progressEnabled bool, stepSize float64) {
 
-	if !ctx.Progress.PrintEnabled {
+	var mut sync.Mutex
+	if !progressEnabled {
 		return
 	}
 
 	log := ctx.GetLogger()
 	if log.Name() == "machine" {
+		mut.Lock()
 		log.Println(constants.LOG_LEVEL_INFO, constants.MSG_PROGRESS, strconv.FormatFloat(ctx.Progress.Progress, 'f', 2, 32))
-		ctx.Progress.Progress += ctx.Progress.Steps
+		ctx.Progress.Progress += stepSize
+		log.Flush()
+		mut.Unlock()
 	}
 }
 
@@ -174,11 +178,11 @@ func compileFilesWithRecipe(ctx *types.Context, sourcePath *paths.Path, sources 
 	var errors []error
 	var errorsMux sync.Mutex
 
-	ctx.Progress.Steps = ctx.Progress.Steps / float64(len(sources))
+	stepSize := ctx.Progress.Steps / float64(len(sources))
 
 	queue := make(chan *paths.Path)
 	job := func(source *paths.Path) {
-		PrintProgressIfProgressEnabledAndMachineLogger(ctx)
+		go PrintProgressIfProgressEnabledAndMachineLogger(ctx, true, stepSize)
 		objectFile, err := compileFileWithRecipe(ctx, sourcePath, source, buildPath, buildProperties, includes, recipe)
 		if err != nil {
 			errorsMux.Lock()
