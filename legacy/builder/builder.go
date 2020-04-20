@@ -106,7 +106,9 @@ func (s *Builder) Run(ctx *types.Context) error {
 
 		&PrintUsedLibrariesIfVerbose{},
 
+		&RecipeByPrefixSuffixRunner{Prefix: constants.HOOKS_CMAKE_PRECMAKE, Suffix: constants.HOOKS_PATTERN_SUFFIX},
 		&ExportProjectCMake{SketchError: mainErr != nil},
+		&RecipeByPrefixSuffixRunner{Prefix: constants.HOOKS_CMAKE_POSTCMAKE, Suffix: constants.HOOKS_PATTERN_SUFFIX},
 
 		&phases.Sizer{SketchError: mainErr != nil},
 	}
