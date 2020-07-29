@@ -190,7 +190,8 @@ func SketchLoad(sketchPath, buildPath string) (*sketch.Sketch, error) {
 		ext := strings.ToLower(filepath.Ext(path))
 		_, isMain := globals.MainFileValidExtensions[ext]
 		_, isAdditional := globals.AdditionalFileValidExtensions[ext]
-		if !(isMain || isAdditional) {
+		_, isSubsketch := globals.ThreadFileValidExtensions[ext]
+		if !(isMain || isAdditional || isSubsketch) {
 			return nil
 		}
 
@@ -215,7 +216,7 @@ func SketchLoad(sketchPath, buildPath string) (*sketch.Sketch, error) {
 	return sketch.New(sketchFolder, mainSketchFile, buildPath, files)
 }
 
-// SketchMergeSources merges all the source files included in a sketch
+//  merges all the source files included in a sketch
 func SketchMergeSources(sketch *sketch.Sketch) (int, string, error) {
 	lineOffset := 0
 	mergedSource := ""
@@ -228,6 +229,24 @@ func SketchMergeSources(sketch *sketch.Sketch) (int, string, error) {
 	if !includesArduinoH.MatchString(mainSrc) {
 		mergedSource += "#include <Arduino.h>\n"
 		lineOffset++
+	}
+
+	// if the sketch contains .inot files, include "Arduino_Threads.h"
+	if len(sketch.ThreadSketchFiles) > 0 {
+		mergedSource += "#include <Arduino_Threads.h>\n"
+		lineOffset++
+		for _, el := range sketch.ThreadSketchFiles {
+			src, err := el.GetSourceStr()
+			if err != nil {
+				return 0, "", err
+			}
+			filename := strings.TrimSuffix(filepath.Base(el.Path), filepath.Ext(el.Path))
+			mergedSource += "THD_ENTER(" + filename + ")\n"
+			mergedSource += "#line 1 " + QuoteCppString(el.Path) + "\n"
+			mergedSource += src
+			mergedSource += "THD_DONE(" + filename + ")\n"
+			lineOffset += el.GetSourceLines() + 2
+		}
 	}
 
 	mergedSource += "#line 1 " + QuoteCppString(sketch.MainFile.Path) + "\n"

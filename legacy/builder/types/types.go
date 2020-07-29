@@ -104,9 +104,10 @@ func (s SketchFileSortByName) Less(i, j int) bool {
 }
 
 type Sketch struct {
-	MainFile         SketchFile
-	OtherSketchFiles []SketchFile
-	AdditionalFiles  []SketchFile
+	MainFile          SketchFile
+	OtherSketchFiles  []SketchFile
+	AdditionalFiles   []SketchFile
+	ThreadSketchFiles []SketchFile
 }
 
 func SketchToLegacy(sketch *sketch.Sketch) *Sketch {
@@ -127,6 +128,12 @@ func SketchToLegacy(sketch *sketch.Sketch) *Sketch {
 		})
 	}
 
+	for _, item := range sketch.ThreadSketchFiles {
+		s.ThreadSketchFiles = append(s.ThreadSketchFiles, SketchFile{
+			paths.New(item.Path),
+		})
+	}
+
 	return s
 }
 
@@ -143,13 +150,20 @@ func SketchFromLegacy(s *Sketch) *sketch.Sketch {
 		additional = append(additional, i)
 	}
 
+	threads := []*sketch.Item{}
+	for _, f := range s.ThreadSketchFiles {
+		i := sketch.NewItem(f.Name.String())
+		threads = append(threads, i)
+	}
+
 	return &sketch.Sketch{
 		MainFile: &sketch.Item{
 			Path: s.MainFile.Name.String(),
 		},
-		LocationPath:     s.MainFile.Name.Parent().String(),
-		OtherSketchFiles: others,
-		AdditionalFiles:  additional,
+		LocationPath:      s.MainFile.Name.Parent().String(),
+		OtherSketchFiles:  others,
+		AdditionalFiles:   additional,
+		ThreadSketchFiles: threads,
 	}
 }
 

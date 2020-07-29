@@ -55,6 +55,23 @@ func (i *Item) GetSourceStr() (string, error) {
 	return string(source), nil
 }
 
+func (i *Item) GetSourceLines() int {
+	n := 0
+	s, err := i.GetSourceStr()
+	if err != nil {
+		return 0
+	}
+	for _, r := range s {
+		if r == '\n' {
+			n++
+		}
+	}
+	if len(s) > 0 && !strings.HasSuffix(s, "\n") {
+		n++
+	}
+	return n
+}
+
 // ItemByPath implements sort.Interface for []Item based on
 // lexicographic order of the path string.
 type ItemByPath []*Item
@@ -65,10 +82,11 @@ func (ibn ItemByPath) Less(i, j int) bool { return ibn[i].Path < ibn[j].Path }
 
 // Sketch holds all the files composing a sketch
 type Sketch struct {
-	MainFile         *Item
-	LocationPath     string
-	OtherSketchFiles []*Item
-	AdditionalFiles  []*Item
+	MainFile          *Item
+	LocationPath      string
+	OtherSketchFiles  []*Item
+	ThreadSketchFiles []*Item
+	AdditionalFiles   []*Item
 }
 
 // New creates an Sketch instance by reading all the files composing a sketch and grouping them
@@ -94,6 +112,7 @@ func New(sketchFolderPath, mainFilePath, buildPath string, allFilesPaths []strin
 	// organize the Items
 	additionalFiles := []*Item{}
 	otherSketchFiles := []*Item{}
+	threadSketchFiles := []*Item{}
 	for p, item := range pathToItem {
 		ext := strings.ToLower(filepath.Ext(p))
 		if _, found := globals.MainFileValidExtensions[ext]; found {
@@ -108,6 +127,12 @@ func New(sketchFolderPath, mainFilePath, buildPath string, allFilesPaths []strin
 			if buildPath == "" || !strings.Contains(filepath.Dir(p), buildPath) {
 				additionalFiles = append(additionalFiles, item)
 			}
+		} else if _, found := globals.ThreadFileValidExtensions[ext]; found {
+			// item is a valid subsketch file, see if it's stored at the
+			// sketch root and ignore if it's not.
+			if filepath.Dir(p) == sketchFolderPath {
+				threadSketchFiles = append(threadSketchFiles, item)
+			}
 		} else {
 			return nil, errors.Errorf("unknown sketch file extension '%s'", ext)
 		}
@@ -115,11 +140,13 @@ func New(sketchFolderPath, mainFilePath, buildPath string, allFilesPaths []strin
 
 	sort.Sort(ItemByPath(additionalFiles))
 	sort.Sort(ItemByPath(otherSketchFiles))
+	sort.Sort(ItemByPath(threadSketchFiles))
 
 	return &Sketch{
-		MainFile:         mainFile,
-		LocationPath:     sketchFolderPath,
-		OtherSketchFiles: otherSketchFiles,
-		AdditionalFiles:  additionalFiles,
+		MainFile:          mainFile,
+		LocationPath:      sketchFolderPath,
+		OtherSketchFiles:  otherSketchFiles,
+		ThreadSketchFiles: threadSketchFiles,
+		AdditionalFiles:   additionalFiles,
 	}, nil
 }

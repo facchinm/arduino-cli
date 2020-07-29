@@ -24,6 +24,11 @@ var (
 		".pde": empty,
 	}
 
+	// ThreadFileValidExtensions lists valid extensions for a sketch "thread" file (subsketch)
+	ThreadFileValidExtensions = map[string]struct{}{
+		".inot": empty,
+	}
+
 	// AdditionalFileValidExtensions lists any file extension the builder considers as valid
 	AdditionalFileValidExtensions = map[string]struct{}{
 		".h":   empty,
