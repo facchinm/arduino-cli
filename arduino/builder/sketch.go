@@ -234,7 +234,8 @@ func SketchMergeSources(sketch *sketch.Sketch) (int, string, error) {
 	// if the sketch contains .inot files, include "Arduino_Threads.h"
 	if len(sketch.ThreadSketchFiles) > 0 {
 		mergedSource += "#include <Arduino_Threads.h>\n"
-		lineOffset++
+		mergedSource += "#include \"SharedVariables.h\"\n"
+		lineOffset += 2
 		for _, el := range sketch.ThreadSketchFiles {
 			src, err := el.GetSourceStr()
 			if err != nil {
