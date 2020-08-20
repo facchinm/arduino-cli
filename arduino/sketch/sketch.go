@@ -55,6 +55,27 @@ func (i *Item) GetSourceStr() (string, error) {
 	return string(source), nil
 }
 
+// GetSourceStr reads the item file contents and returns it as a string
+func (i *Item) GetSourceStrWithoutLinesStartingWith(start string) (string, string, int, error) {
+	source, err := i.GetSourceBytes()
+	if err != nil {
+		return "", "", 0, err
+	}
+	lines := strings.Split(string(source), "\n")
+	out_ok := ""
+	out_ko := ""
+	howMany := 0
+	for _, line := range lines {
+		if strings.HasPrefix(line, start) {
+			out_ko += line + "\n"
+			howMany++
+		} else {
+			out_ok += line + "\n"
+		}
+	}
+	return out_ok, out_ko, howMany, err
+}
+
 func (i *Item) GetSourceLines() int {
 	n := 0
 	s, err := i.GetSourceStr()

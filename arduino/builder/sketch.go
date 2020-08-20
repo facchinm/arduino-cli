@@ -235,12 +235,17 @@ func SketchMergeSources(sketch *sketch.Sketch) (int, string, error) {
 	if len(sketch.ThreadSketchFiles) > 0 {
 		mergedSource += "#include <Arduino_Threads.h>\n"
 		mergedSource += "#include \"SharedVariables.h\"\n"
+		mergedSource += "__INCLUDES_PLACEHOLDER__\n"
 		lineOffset += 2
+		includes := ""
+		howManyIncludes := 1
 		for _, el := range sketch.ThreadSketchFiles {
-			src, err := el.GetSourceStr()
+			src, include, howManyInclude, err := el.GetSourceStrWithoutLinesStartingWith("#include")
 			if err != nil {
 				return 0, "", err
 			}
+			includes += include
+			howManyIncludes += howManyInclude
 			filename := strings.TrimSuffix(filepath.Base(el.Path), filepath.Ext(el.Path))
 			mergedSource += "THD_ENTER(" + filename + ")\n"
 			mergedSource += "#line 1 " + QuoteCppString(el.Path) + "\n"
@@ -248,6 +253,10 @@ func SketchMergeSources(sketch *sketch.Sketch) (int, string, error) {
 			mergedSource += "THD_DONE(" + filename + ")\n"
 			lineOffset += el.GetSourceLines() + 2
 		}
+		mergedSource += "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+		lineOffset += 16
+		mergedSource = strings.Replace(mergedSource, "__INCLUDES_PLACEHOLDER__", includes, 1)
+		lineOffset += howManyIncludes - 1
 	}
 
 	mergedSource += "#line 1 " + QuoteCppString(sketch.MainFile.Path) + "\n"
