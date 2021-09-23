@@ -43,6 +43,11 @@ var (
 		".ipp":  empty,
 	}
 
+	// ThreadFileValidExtensions lists valid extensions for a sketch "thread" file (subsketch)
+	ThreadFileValidExtensions = map[string]struct{}{
+		".inot": empty,
+	}
+
 	// SourceFilesValidExtensions lists valid extensions for source files (no headers)
 	SourceFilesValidExtensions = map[string]struct{}{
 		".c":   empty,

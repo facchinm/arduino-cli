@@ -88,6 +88,13 @@ func SketchMergeSources(sk *sketch.Sketch, overrides map[string]string) (int, st
 		lineOffset++
 	}
 
+	if len(sk.ThreadSketchFiles) > 0 {
+		mergedSource, lineOffset, err = preprocessInot(mergedSource, lineOffset, sk.ThreadSketchFiles)
+		if err != nil {
+			return 0, "", err
+		}
+	}
+
 	mergedSource += "#line 1 " + QuoteCppString(sk.MainFile.String()) + "\n"
 	mergedSource += mainSrc + "\n"
 	lineOffset++
