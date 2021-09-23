@@ -31,14 +31,15 @@ import (
 
 // Sketch holds all the files composing a sketch
 type Sketch struct {
-	Name             string
-	MainFile         *paths.Path
-	FullPath         *paths.Path // FullPath is the path to the Sketch folder
-	BuildPath        *paths.Path
-	OtherSketchFiles paths.PathList // Sketch files that end in .ino other than main file
-	AdditionalFiles  paths.PathList
-	RootFolderFiles  paths.PathList // All files that are in the Sketch root
-	Metadata         *Metadata
+	Name              string
+	MainFile          *paths.Path
+	FullPath          *paths.Path // FullPath is the path to the Sketch folder
+	BuildPath         *paths.Path
+	OtherSketchFiles  paths.PathList // Sketch files that end in .ino other than main file
+	AdditionalFiles   paths.PathList
+	ThreadSketchFiles paths.PathList
+	RootFolderFiles   paths.PathList // All files that are in the Sketch root
+	Metadata          *Metadata
 }
 
 // Metadata is the kind of data associated to a project such as the connected board
@@ -142,6 +143,17 @@ func New(path *paths.Path) (*Sketch, error) {
 			if p.Parent().EqualsTo(path) {
 				sketch.RootFolderFiles.Add(p)
 			}
+		} else if _, found := globals.ThreadFileValidExtensions[ext]; found {
+			// If the user exported the compiles binaries to the Sketch "build" folder
+			// they would be picked up but we don't want them, so we skip them like so
+			if isInBuildFolder, err := p.IsInsideDir(sketch.FullPath.Join("build")); isInBuildFolder || err != nil {
+				continue
+			}
+
+			sketch.ThreadSketchFiles.Add(p)
+			if p.Parent().EqualsTo(path) {
+				sketch.RootFolderFiles.Add(p)
+			}
 		} else {
 			return nil, errors.Errorf(tr("unknown sketch file extension '%s'"), ext)
 		}
@@ -150,6 +162,7 @@ func New(path *paths.Path) (*Sketch, error) {
 	sort.Sort(&sketch.AdditionalFiles)
 	sort.Sort(&sketch.OtherSketchFiles)
 	sort.Sort(&sketch.RootFolderFiles)
+	sort.Sort(&sketch.ThreadSketchFiles)
 
 	if err := sketch.importMetadata(); err != nil {
 		return nil, fmt.Errorf(tr("importing sketch metadata: %s"), err)
@@ -171,6 +184,9 @@ func (s *Sketch) supportedFiles() (*paths.PathList, error) {
 		validExtensions = append(validExtensions, ext)
 	}
 	for ext := range globals.AdditionalFileValidExtensions {
+		validExtensions = append(validExtensions, ext)
+	}
+	for ext := range globals.ThreadFileValidExtensions {
 		validExtensions = append(validExtensions, ext)
 	}
 	files.FilterSuffix(validExtensions...)
