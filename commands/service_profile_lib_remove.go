@@ -91,7 +91,7 @@ func (s *arduinoCoreServerImpl) ProfileLibRemove(ctx context.Context, req *rpc.P
 				return nil, &cmderrors.InvalidArgumentError{Cause: err, Message: "cannot resolve dependencies for installed libraries"}
 			}
 			for _, dep := range deps {
-				requiredDeps[dep.Library.Name] = true
+				requiredDeps[dep.GetName()] = true
 			}
 		}
 
@@ -100,12 +100,12 @@ func (s *arduinoCoreServerImpl) ProfileLibRemove(ctx context.Context, req *rpc.P
 			return nil, &cmderrors.InvalidArgumentError{Cause: err, Message: "cannot resolve dependencies for installed libraries"}
 		}
 		// sort to make the output order deterministic
-		slices.SortFunc(candidateDepsToRemove, librariesindex.ReleaseCompare)
+		slices.SortFunc(candidateDepsToRemove, librariesindex.ReleaseReferenceCompare)
 		for _, depToRemove := range candidateDepsToRemove {
-			if requiredDeps[depToRemove.Library.Name] {
+			if requiredDeps[depToRemove.GetName()] {
 				continue
 			}
-			_ = remove(&sketch.ProfileLibraryReference{Library: depToRemove.Library.Name, Version: depToRemove.Version})
+			_ = remove(&sketch.ProfileLibraryReference{Library: depToRemove.GetName(), Version: depToRemove.GetVersion()})
 		}
 	}
 
