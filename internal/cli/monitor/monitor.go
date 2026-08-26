@@ -22,6 +22,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"os/signal"
 	"slices"
 	"sort"
 	"strings"
@@ -39,7 +40,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"go.bug.st/cleanup"
 )
 
 // NewCommand created a new `monitor` command
@@ -217,7 +217,8 @@ func runMonitorCmd(
 		ttyOut = newTimeStampWriter(ttyOut)
 	}
 
-	ctx, cancel := cleanup.InterruptableContext(ctx)
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	defer cancel()
 	if raw {
 		if feedback.IsInteractive() {
 			if err := feedback.SetRawModeStdin(); err != nil {

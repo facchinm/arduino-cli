@@ -19,11 +19,11 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/signal"
 
 	"github.com/arduino/arduino-cli/internal/i18n"
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/codeclysm/extract/v4"
-	"go.bug.st/cleanup"
 )
 
 type IntegrityCheckMode int
@@ -71,7 +71,7 @@ func (release *DownloadResource) Install(downloadDir, tempPath, destDir *paths.P
 	defer file.Close()
 
 	// Extract into temp directory
-	ctx, cancel := cleanup.InterruptableContext(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 	if err := extract.Archive(ctx, file, tempDir.String(), nil); err != nil {
 		return errors.New(i18n.Tr("extracting archive: %s", err))

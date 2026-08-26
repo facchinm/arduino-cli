@@ -36,7 +36,6 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.bug.st/cleanup v1.0.0
 	go.bug.st/downloader/v3 v3.0.0
 	go.bug.st/f v0.5.0
 	go.bug.st/relaxed-semver v0.15.0
