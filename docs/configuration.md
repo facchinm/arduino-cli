@@ -125,6 +125,10 @@ The `GITHUB_TOKEN` environment variable is also recognised: when set, its value 
 header on GitHub Actions artifact download requests only (see the note in the [Configuration keys](#configuration-keys)
 section above).
 
+`ARDUINO_FORCE_TOOLS_ARCH` can be set to a Go architecture name such as `arm64` or `amd64` to force installation of
+tools packages built for that architecture. The selected tools must provide an exact flavor for the current operating
+system; no emulation fallback is applied. This is intended for cross-architecture or emulated environments.
+
 #### Example
 
 Setting an additional Boards Manager URL using the `ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS` environment variable:
