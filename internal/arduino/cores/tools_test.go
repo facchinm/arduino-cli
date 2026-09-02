@@ -16,6 +16,7 @@
 package cores
 
 import (
+	"runtime"
 	"slices"
 	"testing"
 
@@ -203,6 +204,10 @@ func TestFlavorPrioritySelection(t *testing.T) {
 }
 
 func TestFlavorForcedArchitecture(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("forced architecture test requires Linux tool flavors")
+	}
+
 	tr := &ToolRelease{
 		Flavors: []*Flavor{
 			{OS: "x86_64-linux-gnu", Resource: &resources.DownloadResource{ArchiveFileName: "amd64"}},
