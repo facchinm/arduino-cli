@@ -205,6 +205,7 @@ schema should be considered unstable in this version.
 [arduino-cli global flags]: commands/arduino-cli_config.md#options-inherited-from-parent-commands
 [export command]: https://ss64.com/bash/export.html
 [set command]: https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/set_1
+[tool flavour]: package_index_json-specification.md#tools-flavours-available-builds-made-for-different-os
 [arduino-cli config init]: commands/arduino-cli_config_init.md
 [json]: https://www.json.org
 [toml]: https://github.com/toml-lang/toml
